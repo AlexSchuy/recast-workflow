@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'recast-workflow'
+project = 'recast_workflow'
 copyright = '2019, Alex Schuy'
 author = 'Alex Schuy'
 

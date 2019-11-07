@@ -8,8 +8,8 @@ from typing import Dict, List, OrderedDict, Union
 
 import yaml
 
-import definitions
-from common import utils
+from .. import definitions
+from ..common import utils
 
 
 def get_all_combinations():
@@ -61,7 +61,7 @@ def get_all_combinations():
 def get_valid_combinations(common_inputs: Dict[str, str]) -> List[OrderedDict[str, str]]:
     """Given values for common inputs, returns all combinations of subworkflows that support those values.
 
-    Each common input should be defined in recast-workflow/common_inputs.yml, in which it is associated with a set of steps. 
+    Each common input should be defined in recast_workflow/common_inputs.yml, in which it is associated with a set of steps.
     Each subworkflow for those steps is assumed to implement a common_inputs.py file with an is_valid() -> bool function.
     This function is called for each subworkflow to determine whether it should be included.
 

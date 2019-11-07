@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 import yaml
 
-import definitions
+from .. import definitions
 
 
 def get_subworkflow_dir_path(step: str, subworkflow: str) -> Path:
@@ -32,7 +32,7 @@ def get_common_inputs(step=None, include_descriptions=False) -> Dict[str, str]:
     with path.open() as f:
         text = yaml.safe_load(f)
         if step:
-            text = {k: v for k,v in text.items() if step in v['steps']}
+            text = {k: v for k, v in text.items() if step in v['steps']}
         if include_descriptions:
             return text
         else:
