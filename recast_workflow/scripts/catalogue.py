@@ -81,7 +81,7 @@ def get_valid_combinations(common_inputs: Dict[str, str]) -> List[OrderedDict[st
         raise ValueError(
             f'common inputs {invalid_inputs} were provided, but these are not defined in common_inputs.yml.')
 
-    steps = set(itertools.chain(
+    steps = set(itertools.chain.from_iterable(
         descriptions[k]['steps'] for k in common_inputs))
     allowed = {step: set() for step in steps}
     for step in steps:
