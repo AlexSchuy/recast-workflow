@@ -8,8 +8,8 @@ from typing import Dict, List, OrderedDict, Union
 
 import yaml
 
-from .. import definitions
-from ..common import utils
+import definitions
+from common import utils
 
 
 def get_all_combinations():

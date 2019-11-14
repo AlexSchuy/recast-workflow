@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 import yaml
 
-from .. import definitions
+import definitions
 
 
 def get_subworkflow_dir_path(step: str, subworkflow: str) -> Path:

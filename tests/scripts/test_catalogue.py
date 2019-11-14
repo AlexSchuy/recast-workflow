@@ -27,12 +27,12 @@ class TestGetInvalidInputs:
     def test_two_invalid_input(self):
         assert catalogue.get_invalid_inputs('generation', 'madgraph_pythia', {
             'fakekey1': 'foofum', 'fakekey2': 'foofi'}) == {
-            'fakekey1': 'foofum', 'fakekey2': 'foofi'}
+                   'fakekey1': 'foofum', 'fakekey2': 'foofi'}
 
     def test_valid_input(self):
         assert catalogue.get_invalid_inputs('generation', 'madgraph_pythia', {
             'fakekey1': 'foofum', 'n_events': 10}) == {
-            'fakekey1': 'foofum'}
+                   'fakekey1': 'foofum'}
 
 
 class TestGetMissingInputs:
@@ -63,5 +63,15 @@ class TestGetAllCombinations:
 
     @pytest.mark.timeout(10)
     def test_correctness(self):
-        assert catalogue.get_all_combinations() == [OrderedDict([('generation', 'madgraph_pythia'), ('analysis', 'madanalysis')]), OrderedDict(
-            {'generation': 'madgraph_pythia', 'selection': 'rivet', 'statistics': 'pyhf'})]
+        assert catalogue.get_all_combinations() == [
+            OrderedDict([('generation', 'madgraph_pythia'), ('analysis', 'madanalysis')]), OrderedDict(
+                {'generation': 'madgraph_pythia', 'selection': 'rivet', 'statistics': 'pyhf'})]
+
+
+class TestGetValidCombination:
+    @pytest.mark.timeout(10)
+    def test_valid_analysis_sample(self):
+        catalogue.get_valid_combinations({
+            'analysis_id': '1609448'
+        })
+        assert True
