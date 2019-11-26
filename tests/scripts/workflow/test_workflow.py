@@ -14,7 +14,7 @@ class TestExpandWorkflow:
         workflow_path = definitions.SUBWORKFLOWS_DIR / 'selection' / 'rivet' / 'workflow.yml'
         toplevel_path = workflow_path.parent
         actual = workflow.expand_workflow(workflow_path, toplevel_path)
-        
+
 
 class TestMakeWorkflowFromYaml:
     @pytest.mark.skip(reason="not fully implemented.")
@@ -24,8 +24,19 @@ class TestMakeWorkflowFromYaml:
         actual = workflow.make_workflow_from_yaml(input_path)
         assert actual == expected
 
+
 class TestMakeWorkflow:
-    @pytest.mark.skip(reason="not fully implemented.")
+    def test_make_subworkflow(self):
+        actual = workflow.make_subworkflow('generation', 'madgraph_pythia', {})
+        print(actual)
+
+    def test_valid_args_debug(self):
+        steps = ['generation']
+        names = ['madgraph_pythia']
+        actual = workflow.make_workflow(steps, names, [])
+        print(actual)
+
+    # @pytest.mark.skip(reason="not fully implemented.")
     def test_valid_args(self):
         steps = ['generation', 'selection', 'statistics']
         names = ['madgraph_pythia', 'rivet', 'pyhf']
