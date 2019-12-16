@@ -16,9 +16,11 @@ from images import build_utils
 from scripts import catalogue
 
 
-def expand_workflow(workflow_path: Path, toplevel_path: Path):
+def expand_workflow(workflow_path: Path, toplevel_path: Path, versions: Dict[str, str]):
     """ Returns the workflow with all ref replaced by .yml files in the local folder.
+    Version number will be specified in this process.
 
+    :param versions: the dict containing all version numbers
     :param workflow_path: the workflow file
     :param toplevel_path: the local folder
     :return: the workflow with all ref replaced by .yml files in the local folder
@@ -27,8 +29,11 @@ def expand_workflow(workflow_path: Path, toplevel_path: Path):
         if type(yaml_obj) == dict:
             for k in yaml_obj:
                 if k == '$ref':
-                    return expand_workflow(toplevel_path / Path(yaml_obj[k]), toplevel_path)
+                    return expand_workflow(toplevel_path / Path(yaml_obj[k]), toplevel_path, versions)
                 yaml_obj[k] = replace_refs(yaml_obj[k])
+                if '_version' in k:
+                    # Replaced the version here.
+                    return versions[k]
         elif type(yaml_obj) == list:
             for i, v in enumerate(yaml_obj):
                 yaml_obj[i] = replace_refs(v)
@@ -65,21 +70,25 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         used_settings = set()
         subworkflow_path = source_path / 'workflow.yml'
         subworkflow = expand_workflow(
-            subworkflow_path, subworkflow_path.parent)
+            subworkflow_path, subworkflow_path.parent, environment_settings)
         valid_settings = {}
         text = yaml.dump(subworkflow)
+        '''
         for k, v in environment_settings.items():
             if f'{{k}}' in text:
                 valid_settings[k] = v
         valid_settings = {
             k: v for k, v in environment_settings.items() if f'{{k}}' in text}
-        text = text.format(**valid_settings)
+        # It is impossible to replace version here.
+        # TODO: replace version before this line
+        # text = text.format(**valid_settings)
         used_settings.update(valid_settings.keys())
         unused_settings = set(environment_settings.keys()
                               ).difference(used_settings)
         if len(unused_settings) != 0:
             raise ValueError(
                 f'The following environment settings were provided but not used: {unused_settings}')
+        '''
         subworkflow = yaml.safe_load(text)
     
     return subworkflow

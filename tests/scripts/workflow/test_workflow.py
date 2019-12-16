@@ -32,7 +32,9 @@ class TestMakeWorkflowFromYaml:
 
 class TestMakeWorkflow:
     def test_make_subworkflow(self):
-        actual = workflow.make_subworkflow('generation', 'madgraph_pythia', {})
+        actual = workflow.make_subworkflow('generation',
+                                           'madgraph_pythia',
+                                           {'pythia_version': '1.0.0', 'madgraph_version': '1.0.0'})
         print(actual)
 
     def test_valid_args_debug(self):
