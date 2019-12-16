@@ -17,6 +17,12 @@ from scripts import catalogue
 
 
 def expand_workflow(workflow_path: Path, toplevel_path: Path):
+    """ Returns the workflow with all ref replaced by .yml files in the local folder.
+
+    :param workflow_path: the workflow file
+    :param toplevel_path: the local folder
+    :return: the workflow with all ref replaced by .yml files in the local folder
+    """
     def replace_refs(yaml_obj):
         if type(yaml_obj) == dict:
             for k in yaml_obj:
