@@ -10,6 +10,11 @@ TEST_DIR = definitions.TESTS_DIR / 'scripts' / 'workflow'
 
 
 class TestExpandWorkflow:
+    def test_null_version(self):
+        workflow_path = definitions.SUBWORKFLOWS_DIR / 'generation' / 'madgraph_pythia' / 'madgraph.yml'
+        actual = workflow.expand_workflow(workflow_path, workflow_path)
+        print(actual)
+
     def test_simple(self):
         workflow_path = definitions.SUBWORKFLOWS_DIR / 'selection' / 'rivet' / 'workflow.yml'
         toplevel_path = workflow_path.parent
