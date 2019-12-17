@@ -75,3 +75,10 @@ class TestGetValidCombination:
             'analysis_id': '1609448'
         })
         assert True
+
+
+class TestGetEnvSetting:
+    @pytest.mark.timeout(10)
+    def test_get_environment_settings(self):
+        actual = catalogue.get_environment_settings(step='generation', subworkflow_name='madgraph_pythia')
+        assert (actual == ['madgraph_version', 'pythia_version'])

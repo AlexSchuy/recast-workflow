@@ -97,13 +97,17 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
 def build_subworkflow(step: str, name: str, environment_settings: dict):
     """Builds the images corresponding to the given subworkflow and environment settings.
 
-    The subworkflow's base image directory is searched recursively for dockerfiles. Each directory with a dockerfile is assumed to correspond to an image, where the name of the directory is equivalent to the name of the image.
-    If a build.py exists in an image directory, it is run and assumed to handle building the image. Otherwise, the 'build_tags' section of the description.yml for the subworkflow is checked for an appropriate tag.
-    It is assumed that this tag is also the build arg for the image creation, and a corresponding docker build and push are run.
+    The subworkflow's base image directory is searched recursively for dockerfiles. Each directory with a dockerfile
+    is assumed to correspond to an image, where the name of the directory is equivalent to the name of the image. If
+    a build.py exists in an image directory, it is run and assumed to handle building the image. Otherwise,
+    the 'build_tags' section of the description.yml for the subworkflow is checked for an appropriate tag. It is
+    assumed that this tag is also the build arg for the image creation, and a corresponding docker build and push are
+    run.
     """
     subworkflow_dir_path = utils.get_image_dir_path(step, name)
     description = utils.get_subworkflow_description(step, name)
 
+    # TODO: dir_paths failed to fetch folders.
     dir_paths = [p.parent for p in subworkflow_dir_path.rglob('Dockerfile')]
     used_environment_settings = set()
     ran_build_script = False

@@ -3,6 +3,8 @@ import os
 import pytest
 import shutil
 
+import yaml
+
 import definitions
 from scripts import workflow
 
@@ -34,16 +36,17 @@ class TestMakeWorkflow:
     def test_make_subworkflow(self):
         actual = workflow.make_subworkflow('generation',
                                            'madgraph_pythia',
-                                           {'pythia_version': '1.0.0', 'madgraph_version': '1.0.0'})
-        print(actual)
+                                           {'pythia_version': '8243', 'madgraph_version': '2.6.7'})
+        text = yaml.dump(actual)
+        print(text)
 
     def test_valid_args_debug(self):
         steps = ['generation']
         names = ['madgraph_pythia']
-        actual = workflow.make_workflow(steps, names, [])
+        env = [{'pythia_version': '8243', 'madgraph_version': '2.6.7'}]
+        actual = workflow.make_workflow(steps, names, env)
         print(actual)
 
-    # @pytest.mark.skip(reason="not fully implemented.")
     def test_valid_args(self):
         steps = ['generation', 'selection', 'statistics']
         names = ['madgraph_pythia', 'rivet', 'pyhf']
