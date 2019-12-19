@@ -40,6 +40,7 @@ class TestMakeWorkflow:
         text = yaml.dump(actual)
         print(text)
 
+    # Before running this test, remember to add your $DOCKER_USERNAME and $DOCKER_PASSWORD
     def test_valid_args_debug(self):
         steps = ['generation']
         names = ['madgraph_pythia']
