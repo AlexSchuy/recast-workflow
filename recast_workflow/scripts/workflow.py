@@ -107,7 +107,6 @@ def build_subworkflow(step: str, name: str, environment_settings: dict):
     subworkflow_dir_path = utils.get_image_dir_path(step, name)
     description = utils.get_subworkflow_description(step, name)
 
-    # TODO: dir_paths failed to fetch folders.
     dir_paths = [p.parent for p in subworkflow_dir_path.rglob('Dockerfile')]
     used_environment_settings = set()
     ran_build_script = False
