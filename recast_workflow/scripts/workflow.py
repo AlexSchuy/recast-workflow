@@ -74,7 +74,7 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         used_settings = set()
         subworkflow_path = source_path / 'workflow.yml'
 
-        # Load the default parameters, if it exists.
+        # Load the default parameters, if the file exists.
         description_path = source_path / 'description.yml'
         if description_path.exists():
             description_yaml = yaml.safe_load(description_path.open())
@@ -141,6 +141,7 @@ def build_subworkflow(step: str, name: str, environment_settings: dict):
             ran_build_script = True
         else:
             image_name = dir_path.name
+            # TODO: Problem here
             if 'build' in description and image_name in description['build']:
                 tag_name = description['build'][image_name]
                 if tag_name not in environment_settings:
