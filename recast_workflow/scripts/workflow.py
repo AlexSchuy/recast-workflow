@@ -25,19 +25,21 @@ def expand_workflow(workflow_path: Path, toplevel_path: Path, versions: Dict[str
     :param toplevel_path: the local folder
     :return: the workflow with all ref replaced by .yml files in the local folder
     """
+
     def replace_refs(yaml_obj):
         if type(yaml_obj) == dict:
             for k in yaml_obj:
                 if k == '$ref':
                     return expand_workflow(toplevel_path / Path(yaml_obj[k]), toplevel_path, versions)
                 yaml_obj[k] = replace_refs(yaml_obj[k])
-                if '_version' in k:
+                if k in versions:
                     # Replaced the version here.
                     return versions[k]
         elif type(yaml_obj) == list:
             for i, v in enumerate(yaml_obj):
                 yaml_obj[i] = replace_refs(v)
         return yaml_obj
+
     with workflow_path.open() as f:
         yaml_obj = yaml.safe_load(f)
     return replace_refs(yaml_obj)
@@ -61,19 +63,35 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
     source_path = utils.get_subworkflow_dir_path(step, subworkflow_name)
     make_path = source_path / 'make.py'
     if make_path.exists():
+        # TODO: Test whether this part works (or never called).
         spec = importlib.util.spec_from_file_location('make', make_path)
         make_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(make_module)
         subworkflow = make_module.make(environment_settings)
     else:
+        # TODO: Replace the name tag in expand_workflow()
         # Add environment settings to the copied yaml files.
         used_settings = set()
         subworkflow_path = source_path / 'workflow.yml'
+
+        # Load the default parameters, if it exists.
+        description_path = source_path / 'description.yml'
+        if description_path.exists():
+            description_yaml = yaml.safe_load(description_path)
+            for k, v in description_yaml.items():
+                if 'build' in k:
+                    # TODO: typing problem here? v is not guaranteed to be a dict
+                    for name, version in v.items():
+                        if name not in environment_settings:
+                            environment_settings[name] = version
+
         subworkflow = expand_workflow(
             subworkflow_path, subworkflow_path.parent, environment_settings)
-        valid_settings = {}
-        text = yaml.dump(subworkflow)
+
+        # TODO: Add checking functionality.
+        # valid_settings = {}
         '''
+        text = yaml.dump(subworkflow)
         for k, v in environment_settings.items():
             if f'{{k}}' in text:
                 valid_settings[k] = v
@@ -88,9 +106,10 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         if len(unused_settings) != 0:
             raise ValueError(
                 f'The following environment settings were provided but not used: {unused_settings}')
-        '''
+
         subworkflow = yaml.safe_load(text)
-    
+        '''
+
     return subworkflow
 
 
@@ -194,13 +213,13 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
                     raise ValueError(
                         f'interface {interfaces["input"]} has a parameter {parameter["name"]} that conflicts with a parameter for workflow {name} for step {step}.')
                 parameters[parameter['name']] = {
-                    'step': steps[i-1], 'output': parameter['name']}
+                    'step': steps[i - 1], 'output': parameter['name']}
         # Write the rest of the yaml.
         scheduler = {'scheduler_type': 'singlestep-stage',
                      'parameters': parameters, 'workflow': subworkflow}
         dependencies = ['init']
         if i > 0:
-            dependencies.append(f'{steps[i-1]}_{names[i-1]}')
+            dependencies.append(f'{steps[i - 1]}_{names[i - 1]}')
         workflow['stages'].append(
             {'name': f'{step}_{name}', 'dependencies': dependencies, 'scheduler': scheduler})
 
