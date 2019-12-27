@@ -77,13 +77,14 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         # Load the default parameters, if it exists.
         description_path = source_path / 'description.yml'
         if description_path.exists():
-            description_yaml = yaml.safe_load(description_path)
+            description_yaml = yaml.safe_load(description_path.open())
             for k, v in description_yaml.items():
-                if 'build' in k:
-                    # TODO: typing problem here? v is not guaranteed to be a dict
-                    for name, version in v.items():
+                if 'environment_settings' in k:
+                    # If any environment_setting is not assigned, use the default value.
+                    for default_param in v:
+                        name = default_param['name']
                         if name not in environment_settings:
-                            environment_settings[name] = version
+                            environment_settings[name] = default_param['default']
 
         subworkflow = expand_workflow(
             subworkflow_path, subworkflow_path.parent, environment_settings)

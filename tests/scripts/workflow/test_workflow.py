@@ -40,6 +40,13 @@ class TestMakeWorkflow:
         text = yaml.dump(actual)
         print(text)
 
+    def test_make_subworkflow_default_args(self):
+        actual = workflow.make_subworkflow('generation',
+                                           'madgraph_pythia',
+                                           {})
+        text = yaml.dump(actual)
+        print(text)
+
     # Before running this test, remember to add your $DOCKER_USERNAME and $DOCKER_PASSWORD
     def test_valid_args_debug(self):
         steps = ['generation']
