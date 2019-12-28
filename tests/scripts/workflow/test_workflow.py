@@ -48,10 +48,17 @@ class TestMakeWorkflow:
         print(text)
 
     # Before running this test, remember to add your $DOCKER_USERNAME and $DOCKER_PASSWORD
-    def test_valid_args_debug(self):
+    def test_valid_args_debug_generation(self):
         steps = ['generation']
         names = ['madgraph_pythia']
-        env = [{'pythia_version': '8243', 'madgraph_version': '2.6.7'}]
+        env = [{}]
+        actual = workflow.make_workflow(steps, names, env)
+        print(actual)
+
+    def test_valid_args_debug_selection(self):
+        steps = ['selection']
+        names = ['rivet']
+        env = [{}]
         actual = workflow.make_workflow(steps, names, env)
         print(actual)
 

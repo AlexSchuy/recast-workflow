@@ -69,7 +69,6 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         spec.loader.exec_module(make_module)
         subworkflow = make_module.make(environment_settings)
     else:
-        # TODO: Replace the name tag in expand_workflow()
         # Add environment settings to the copied yaml files.
         used_settings = set()
         subworkflow_path = source_path / 'workflow.yml'
@@ -141,19 +140,21 @@ def build_subworkflow(step: str, name: str, environment_settings: dict):
             ran_build_script = True
         else:
             image_name = dir_path.name
-            # TODO: Problem here
-            if 'build' in description and image_name in description['build']:
-                tag_name = description['build'][image_name]
-                if tag_name not in environment_settings:
-                    raise ValueError(
-                        f"Invalid environment_settings: description.yml's build field indicates that '{tag_name}' should be present, but it is not.")
-                tag = environment_settings[tag_name]
-                build_args = {tag_name: tag}
-                image_id = f'recast/{image_name}:{tag}'
-                used_environment_settings.add(tag_name)
-            else:
-                build_args = None
-                image_id = f'recast/{image_name}:latest'
+
+            build_args = None
+            image_id = f'recast/{image_name}:latest'
+            # Search key that contains 'build'
+            for k, v in description.items():
+                if 'build' in k and image_name in v:
+                    tag_name = v[image_name]
+                    if tag_name not in environment_settings:
+                        raise ValueError(
+                            f"Invalid environment_settings: description.yml's build field indicates that '{tag_name}' should be present, but it is not.")
+                    tag = environment_settings[tag_name]
+                    build_args = {tag_name: tag}
+                    image_id = f'recast/{image_name}:{tag}'
+                    used_environment_settings.add(tag_name)
+
             build_utils.build(image_id, dir_path, build_args)
 
     unused_environment_settings = set(
@@ -197,17 +198,23 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
             raise ValueError(
                 f'Environment settings for subworkflow {name} from step {step} contains the following invalid parameters (not listed in the associated description.yml): {invalid_environment_settings}')
 
-        # Build the image if necessary.
-        build_subworkflow(step, name, sub_environment_settings)
-
         # Create parameters dict from inputs + interface.
         subworkflow = make_subworkflow(
             step, name, sub_environment_settings)
+
+        # Build the image if necessary.
+        # Changed the seq of the two lines because make_subworkflow() gets the default value.
+        build_subworkflow(step, name, sub_environment_settings)
+
         description = utils.get_subworkflow_description(step, name)
         inputs = catalogue.get_missing_inputs(step, name, {})
         parameters = {k: {'step': 'init', 'output': k}
                       for k in inputs}
         interfaces = description['interfaces']
+
+        # TODO: Debug line.
+        text = yaml.dump(subworkflow)
+        # TODO: 'input' may be empty!
         if 'input' in interfaces:
             interface = utils.get_interface(interfaces['input'][0])
             for parameter in interface['parameters']:
