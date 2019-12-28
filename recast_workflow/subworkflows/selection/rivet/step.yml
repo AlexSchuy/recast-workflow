@@ -9,4 +9,4 @@ publisher:
 environment:
   environment_type: 'docker-encapsulated'
   image: recast/rivet
-  imagetag: '{rivet_version}'
+  imagetag: {rivet_version}
