@@ -53,14 +53,14 @@ class TestMakeWorkflow:
         names = ['madgraph_pythia']
         env = [{}]
         actual = workflow.make_workflow(steps, names, env)
-        print(actual)
+        print(yaml.dump(actual))
 
     def test_valid_args_debug_selection(self):
         steps = ['selection']
         names = ['rivet']
         env = [{}]
         actual = workflow.make_workflow(steps, names, env)
-        print(actual)
+        print(yaml.dump(actual))
 
     def test_valid_args(self):
         steps = ['generation', 'selection', 'statistics']
