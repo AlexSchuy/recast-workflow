@@ -62,6 +62,13 @@ class TestMakeWorkflow:
         actual = workflow.make_workflow(steps, names, env)
         print(yaml.dump(actual))
 
+    def test_valid_args_debug_stat(self):
+        steps = ['statistics']
+        names = ['pyhf']
+        env = [{}]
+        actual = workflow.make_workflow(steps, names, env)
+        print(yaml.dump(actual))
+
     def test_valid_args(self):
         steps = ['generation', 'selection', 'statistics']
         names = ['madgraph_pythia', 'rivet', 'pyhf']
