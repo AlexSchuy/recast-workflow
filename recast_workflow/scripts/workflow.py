@@ -212,9 +212,6 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
                       for k in inputs}
         interfaces = description['interfaces']
 
-        # TODO: Debug line.
-        text = yaml.dump(subworkflow)
-        # TODO: 'input' may be empty!
         if 'input' in interfaces and interfaces['input']:
             interface = utils.get_interface(interfaces['input'][0])
             for parameter in interface['parameters']:
