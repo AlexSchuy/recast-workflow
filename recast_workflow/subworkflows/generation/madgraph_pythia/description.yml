@@ -13,6 +13,7 @@ inputs:
   - {name: ufotar, description: 'A tar of the UFO model.', optional: true}
   - {name: pythia_card, description: 'Pythia settings.', optional: true}
 interfaces:
+  input: []
   output: 
     - hepmc
   
