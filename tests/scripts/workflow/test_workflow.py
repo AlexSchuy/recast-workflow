@@ -74,3 +74,5 @@ class TestMakeWorkflow:
         names = ['madgraph_pythia', 'rivet', 'pyhf']
         environment_settings = [{}, {}, {}]
         actual = workflow.make_workflow(steps, names, environment_settings)
+        text = yaml.dump(actual)
+        print(actual)
