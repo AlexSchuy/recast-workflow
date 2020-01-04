@@ -88,28 +88,6 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         subworkflow = expand_workflow(
             subworkflow_path, subworkflow_path.parent, environment_settings)
 
-        # TODO: Add checking functionality.
-        # valid_settings = {}
-        '''
-        text = yaml.dump(subworkflow)
-        for k, v in environment_settings.items():
-            if f'{{k}}' in text:
-                valid_settings[k] = v
-        valid_settings = {
-            k: v for k, v in environment_settings.items() if f'{{k}}' in text}
-        # It is impossible to replace version here.
-        # TODO: replace version before this line
-        # text = text.format(**valid_settings)
-        used_settings.update(valid_settings.keys())
-        unused_settings = set(environment_settings.keys()
-                              ).difference(used_settings)
-        if len(unused_settings) != 0:
-            raise ValueError(
-                f'The following environment settings were provided but not used: {unused_settings}')
-
-        subworkflow = yaml.safe_load(text)
-        '''
-
     return subworkflow
 
 
