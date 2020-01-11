@@ -107,7 +107,7 @@ def get_valid_combinations(common_inputs: Dict[str, str]) -> List[OrderedDict[st
 
     combinations = get_all_combinations()
     combinations = [c for c in combinations if all(
-        s not in combinations or combinations[s] in allowed[s] for s in steps)]
+        s not in c or c[s] in allowed[s] for s in steps)]
 
     return combinations
 
