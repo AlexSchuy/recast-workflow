@@ -1,5 +1,5 @@
 analysis_id:
-  description: The inspire ID of the analysis that should be used.
-  steps:
-  - selection
-  - analysis
+    description: The inspire ID of the analysis that should be used.
+    steps:
+    - selection
+    - analysis

@@ -4,7 +4,7 @@ RUN apt-get -y install python2.7 gcc gfortran g++ make python-pip wget gnuplot b
 RUN pip install numpy scipy
 RUN mkdir /code
 WORKDIR /code
-ARG madgraph_version="2.6.6"
+ARG madgraph_version="2.6.7"
 RUN echo "Madgraph version is ${madgraph_version}"
 RUN ["/bin/bash", "-c", "wget https://launchpad.net/mg5amcnlo/${madgraph_version:0:1}.0/${madgraph_version:0:3}.x/+download/MG5_aMC_v${madgraph_version}.tar.gz"]
 RUN ["/bin/bash", "-c", "tar -xzf MG5_aMC_v${madgraph_version}.tar.gz; rm MG5_aMC_v${madgraph_version}.tar.gz; mv MG5_aMC_v${madgraph_version:0:1}_${madgraph_version:2:1}_${madgraph_version:4:1} madgraph"]

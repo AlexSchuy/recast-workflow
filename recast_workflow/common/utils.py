@@ -15,7 +15,14 @@ def get_subworkflow_dir_path(step: str, subworkflow: str) -> Path:
 
 
 def get_image_dir_path(step: str, subworkflow: str) -> Path:
+    return definitions.IMAGES_DIR / subworkflow
+
+
+'''
+Old method.
+def get_image_dir_path(step: str, subworkflow: str) -> Path:
     return definitions.IMAGES_DIR / step / subworkflow
+'''
 
 
 def get_step_dir_path(step: str) -> Path:

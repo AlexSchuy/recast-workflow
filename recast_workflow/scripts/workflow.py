@@ -16,17 +16,30 @@ from images import build_utils
 from scripts import catalogue
 
 
-def expand_workflow(workflow_path: Path, toplevel_path: Path):
+def expand_workflow(workflow_path: Path, toplevel_path: Path, versions: Dict[str, str]):
+    """ Returns the workflow with all ref replaced by .yml files in the local folder.
+    Version number will be specified in this process.
+
+    :param versions: the dict containing all version numbers
+    :param workflow_path: the workflow file
+    :param toplevel_path: the local folder
+    :return: the workflow with all ref replaced by .yml files in the local folder
+    """
+
     def replace_refs(yaml_obj):
         if type(yaml_obj) == dict:
             for k in yaml_obj:
                 if k == '$ref':
-                    return expand_workflow(toplevel_path / Path(yaml_obj[k]), toplevel_path)
+                    return expand_workflow(toplevel_path / Path(yaml_obj[k]), toplevel_path, versions)
                 yaml_obj[k] = replace_refs(yaml_obj[k])
+                if k in versions:
+                    # Replaced the version here.
+                    return versions[k]
         elif type(yaml_obj) == list:
             for i, v in enumerate(yaml_obj):
                 yaml_obj[i] = replace_refs(v)
         return yaml_obj
+
     with workflow_path.open() as f:
         yaml_obj = yaml.safe_load(f)
     return replace_refs(yaml_obj)
@@ -50,6 +63,7 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
     source_path = utils.get_subworkflow_dir_path(step, subworkflow_name)
     make_path = source_path / 'make.py'
     if make_path.exists():
+        # TODO: Test whether this part works (or never called).
         spec = importlib.util.spec_from_file_location('make', make_path)
         make_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(make_module)
@@ -58,33 +72,34 @@ def make_subworkflow(step: str, subworkflow_name: str, environment_settings: Dic
         # Add environment settings to the copied yaml files.
         used_settings = set()
         subworkflow_path = source_path / 'workflow.yml'
+
+        # Load the default parameters, if the file exists.
+        description_path = source_path / 'description.yml'
+        if description_path.exists():
+            description_yaml = yaml.safe_load(description_path.open())
+            for k, v in description_yaml.items():
+                if 'environment_settings' in k:
+                    # If any environment_setting is not assigned, use the default value.
+                    for default_param in v:
+                        name = default_param['name']
+                        if name not in environment_settings:
+                            environment_settings[name] = default_param['default']
+
         subworkflow = expand_workflow(
-            subworkflow_path, subworkflow_path.parent)
-        valid_settings = {}
-        text = yaml.dump(subworkflow)
-        for k, v in environment_settings.items():
-            if f'{{k}}' in text:
-                valid_settings[k] = v
-        valid_settings = {
-            k: v for k, v in environment_settings.items() if f'{{k}}' in text}
-        text = text.format(**valid_settings)
-        used_settings.update(valid_settings.keys())
-        unused_settings = set(environment_settings.keys()
-                              ).difference(used_settings)
-        if len(unused_settings) != 0:
-            raise ValueError(
-                f'The following environment settings were provided but not used: {unused_settings}')
-        subworkflow = yaml.safe_load(text)
-    
+            subworkflow_path, subworkflow_path.parent, environment_settings)
+
     return subworkflow
 
 
 def build_subworkflow(step: str, name: str, environment_settings: dict):
     """Builds the images corresponding to the given subworkflow and environment settings.
 
-    The subworkflow's base image directory is searched recursively for dockerfiles. Each directory with a dockerfile is assumed to correspond to an image, where the name of the directory is equivalent to the name of the image.
-    If a build.py exists in an image directory, it is run and assumed to handle building the image. Otherwise, the 'build_tags' section of the description.yml for the subworkflow is checked for an appropriate tag.
-    It is assumed that this tag is also the build arg for the image creation, and a corresponding docker build and push are run.
+    The subworkflow's base image directory is searched recursively for dockerfiles. Each directory with a dockerfile
+    is assumed to correspond to an image, where the name of the directory is equivalent to the name of the image. If
+    a build.py exists in an image directory, it is run and assumed to handle building the image. Otherwise,
+    the 'build_tags' section of the description.yml for the subworkflow is checked for an appropriate tag. It is
+    assumed that this tag is also the build arg for the image creation, and a corresponding docker build and push are
+    run.
     """
     subworkflow_dir_path = utils.get_image_dir_path(step, name)
     description = utils.get_subworkflow_description(step, name)
@@ -103,18 +118,21 @@ def build_subworkflow(step: str, name: str, environment_settings: dict):
             ran_build_script = True
         else:
             image_name = dir_path.name
-            if 'build' in description and image_name in description['build']:
-                tag_name = description['build'][image_name]
-                if tag_name not in environment_settings:
-                    raise ValueError(
-                        f"Invalid environment_settings: description.yml's build field indicates that '{tag_name}' should be present, but it is not.")
-                tag = environment_settings[tag_name]
-                build_args = {tag_name: tag}
-                image_id = f'recast/{image_name}:{tag}'
-                used_environment_settings.add(tag_name)
-            else:
-                build_args = None
-                image_id = f'recast/{image_name}:latest'
+
+            build_args = None
+            image_id = f'recast/{image_name}:latest'
+            # Search key that contains 'build'
+            for k, v in description.items():
+                if 'build' in k and image_name in v:
+                    tag_name = v[image_name]
+                    if tag_name not in environment_settings:
+                        raise ValueError(
+                            f"Invalid environment_settings: description.yml's build field indicates that '{tag_name}' should be present, but it is not.")
+                    tag = environment_settings[tag_name]
+                    build_args = {tag_name: tag}
+                    image_id = f'recast/{image_name}:{tag}'
+                    used_environment_settings.add(tag_name)
+
             build_utils.build(image_id, dir_path, build_args)
 
     unused_environment_settings = set(
@@ -158,31 +176,34 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
             raise ValueError(
                 f'Environment settings for subworkflow {name} from step {step} contains the following invalid parameters (not listed in the associated description.yml): {invalid_environment_settings}')
 
-        # Build the image if necessary.
-        build_subworkflow(step, name, sub_environment_settings)
-
         # Create parameters dict from inputs + interface.
         subworkflow = make_subworkflow(
             step, name, sub_environment_settings)
+
+        # Build the image if necessary.
+        # Changed the seq of the two lines because make_subworkflow() gets the default value.
+        build_subworkflow(step, name, sub_environment_settings)
+
         description = utils.get_subworkflow_description(step, name)
         inputs = catalogue.get_missing_inputs(step, name, {})
         parameters = {k: {'step': 'init', 'output': k}
                       for k in inputs}
         interfaces = description['interfaces']
-        if 'input' in interfaces:
+
+        if 'input' in interfaces and interfaces['input']:
             interface = utils.get_interface(interfaces['input'][0])
             for parameter in interface['parameters']:
                 if parameter['name'] in parameters:
                     raise ValueError(
                         f'interface {interfaces["input"]} has a parameter {parameter["name"]} that conflicts with a parameter for workflow {name} for step {step}.')
                 parameters[parameter['name']] = {
-                    'step': steps[i-1], 'output': parameter['name']}
+                    'step': steps[i - 1], 'output': parameter['name']}
         # Write the rest of the yaml.
         scheduler = {'scheduler_type': 'singlestep-stage',
                      'parameters': parameters, 'workflow': subworkflow}
         dependencies = ['init']
         if i > 0:
-            dependencies.append(f'{steps[i-1]}_{names[i-1]}')
+            dependencies.append(f'{steps[i - 1]}_{names[i - 1]}')
         workflow['stages'].append(
             {'name': f'{step}_{name}', 'dependencies': dependencies, 'scheduler': scheduler})
 

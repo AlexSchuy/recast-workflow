@@ -81,7 +81,7 @@ def get_valid_combinations(common_inputs: Dict[str, str]) -> List[OrderedDict[st
         raise ValueError(
             f'common inputs {invalid_inputs} were provided, but these are not defined in common_inputs.yml.')
 
-    steps = set(itertools.chain(
+    steps = set(itertools.chain.from_iterable(
         descriptions[k]['steps'] for k in common_inputs))
     allowed = {step: set() for step in steps}
     for step in steps:
@@ -98,7 +98,7 @@ def get_valid_combinations(common_inputs: Dict[str, str]) -> List[OrderedDict[st
                     'common_inputs', common_inputs_script_path)
                 common_inputs_module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(common_inputs_module)
-                if common_inputs_module.is_valid(**{k: v for k, v in common_inputs.items() if k in common_inputs_module.is_valid.func_code.co_varnames}):
+                if common_inputs_module.is_valid(**{k: v for k, v in common_inputs.items() if k in common_inputs_module.is_valid.__code__.co_varnames}):
                     allowed[step].add(subworkflow_dir_path.name)
             except Exception:
                 logging.error(
@@ -107,7 +107,7 @@ def get_valid_combinations(common_inputs: Dict[str, str]) -> List[OrderedDict[st
 
     combinations = get_all_combinations()
     combinations = [c for c in combinations if all(
-        s not in combinations or combinations[s] in allowed[s] for s in steps)]
+        s not in c or c[s] in allowed[s] for s in steps)]
 
     return combinations
 

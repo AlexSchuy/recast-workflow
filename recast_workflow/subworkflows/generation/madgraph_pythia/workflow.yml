@@ -11,7 +11,7 @@ stages:
         proc_card: { step: init, output: proc_card }
         ufotar: { step: init, output: ufotar }
       step: { $ref: "madgraph.yml" }
-  - name: madgraph
+  - name: pythia
     dependencies: ["init"]
     scheduler:
       scheduler_type: "singlestep-stage"

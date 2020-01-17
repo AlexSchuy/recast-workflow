@@ -7,4 +7,4 @@ stages:
         workspace: {step: init, output: workspace}
         yoda: {step: init, output: yoda}
         outputcls: '{workdir}/cls.json'
-      step: {$ref: '~/recast_workflow/statistics/pyhf/step.yml'}
+      step: {$ref: 'step.yml'}
