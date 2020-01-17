@@ -1,0 +1,10 @@
+process:
+  process_type: interpolated-script-cmd
+  script: |
+    contur -f {yoda} -o {contur-dir}
+publisher:
+  publisher_type: 'interpolated-pub'
+environment:
+  environment_type: 'docker-encapsulated'
+  image: recast/contur
+  imagetag: '{contur_version}'

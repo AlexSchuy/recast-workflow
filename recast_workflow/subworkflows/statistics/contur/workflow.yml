@@ -1,0 +1,7 @@
+stages:
+ - name: contur
+   dependencies: ['init']
+   scheduler:
+     scheduler_type: 'singlestep-stage'
+     step: {$ref: 'step.yml'}
+
