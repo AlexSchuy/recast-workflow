@@ -1,6 +1,7 @@
 process:
   process_type: interpolated-script-cmd
   script: |
+    source countur/setupContur.sh
     contur -f {yoda} -o {contur-dir}
 publisher:
   publisher_type: 'interpolated-pub'
