@@ -7,5 +7,5 @@ publisher:
   publisher_type: 'interpolated-pub'
 environment:
   environment_type: 'docker-encapsulated'
-  image: recast/contur
+  image: hepstore/contur
   imagetag: '{contur_version}'
