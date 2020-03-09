@@ -1,9 +1,6 @@
 process:
-  process_type: interpolated-script-cmd
-  script: |
-    . ~/.profile
-    python steer_madgraph.py {proc_card} {outputlhe} --ufotar {ufotar} --run_card {run_card} \
-    --param_card {param_card} -n {n_events}
+  process_type: string-interpolated-cmd
+  cmd: python steer_madgraph.py {proc_card} {outputlhe} -n {n_events}
 publisher:
   publisher_type: "frompar-pub"
   outputmap:

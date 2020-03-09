@@ -6,10 +6,7 @@ stages:
       parameters:
         outputlhe: "events.lhe"
         n_events: { step: init, output: n_events }
-        param_card: { step: init, output: param_card }
-        run_card: { step: init, output: run_card }
         proc_card: { step: init, output: proc_card }
-        ufotar: { step: init, output: ufotar }
       step: { $ref: "madgraph.yml" }
   - name: pythia
     dependencies: ["init"]
@@ -19,5 +16,4 @@ stages:
         inputlhe: "events.lhe"
         outputhepmc: "{workdir}/output.hepmc"
         n_events: { step: init, output: n_events }
-        pythia_card: { step: init, output: pythia_card }
       step: { $ref: "pythia.yml" }
