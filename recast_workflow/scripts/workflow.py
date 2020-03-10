@@ -182,14 +182,17 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
 
         # Build the image if necessary.
         # Changed the seq of the two lines because make_subworkflow() gets the default value.
-        build_subworkflow(step, name, sub_environment_settings)
+        # build_subworkflow(step, name, sub_environment_settings)
 
         description = utils.get_subworkflow_description(step, name)
         inputs = catalogue.get_missing_inputs(step, name, {})
-        parameters = {k: {'step': 'init', 'output': k}
-                      for k in inputs}
+        # TODO: this code only replaces the input interfaces for the first subworkflow, it should do it for all of them
+        parameters = subworkflow['stages'][0]['scheduler']['parameters']
+        # parameters = {k: {'step': 'init', 'output': k} for k in description['inputs']}
         interfaces = description['interfaces']
 
+        # TODO: figure out how to encapsulate multistage workflows
+        '''
         if 'input' in interfaces and interfaces['input']:
             interface = utils.get_interface(interfaces['input'][0])
             for parameter in interface['parameters']:
@@ -204,8 +207,25 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
         dependencies = ['init']
         if i > 0:
             dependencies.append(f'{steps[i - 1]}_{names[i - 1]}')
-        workflow['stages'].append(
-            {'name': f'{step}_{name}', 'dependencies': dependencies, 'scheduler': scheduler})
+
+        workflow['stages'].append({'name': f'{step}_{name}', 'dependencies': dependencies, 'scheduler': scheduler})
+        '''
+
+        # Instead, we just add the subworkflows together
+        # Map inputs and outputs to proper steps
+        if 'input' in interfaces and interfaces['input']:
+            interface = utils.get_interface(interfaces['input'][0])
+            for parameter in interface['parameters']:
+                if parameter['name'] in parameters:
+                    raise ValueError(
+                        f'interface {interfaces["input"]} has a parameter {parameter["name"]} that conflicts with a parameter for workflow {name} for step {step}.')
+                parameters[parameter['name']] = {
+                    'step': workflow['stages'][-1]['name'], 'output': parameter['name']}
+        subworkflow['stages'][0]['scheduler']['parameters'] = parameters
+        # Add dependencies to subworkflow
+        if i > 0:
+            subworkflow['stages'][0]['dependencies'].append(workflow['stages'][-1]['name'])
+        workflow['stages'] += subworkflow['stages']
 
     return workflow
 

@@ -8,4 +8,4 @@ publisher:
 environment:
   environment_type: "docker-encapsulated"
   image: recast/madgraph-pythia
-  imagetag: '{pythia_version}'
+  imagetag: {pythia_version}
