@@ -4,7 +4,6 @@ stages:
     scheduler:
       scheduler_type: 'singlestep-stage'
       parameters:
-        inputyoda: {output: yoda, step: init}
         output_analysis: "{workdir}/ANALYSIS"
         output_plots: "{workdir}/plots"
       step: {$ref: 'step.yml'}

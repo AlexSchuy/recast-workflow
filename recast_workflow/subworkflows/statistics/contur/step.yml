@@ -2,7 +2,7 @@ process:
     process_type: interpolated-script-cmd
     script: |
         source ./setupContur.sh
-        contur {inputyoda}
+        contur {yoda}
         cp -r ./ANALYSIS {output_analysis}
         cp -r ./plots {output_plots}
 publisher:
