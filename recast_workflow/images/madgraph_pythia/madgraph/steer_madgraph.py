@@ -37,6 +37,7 @@ def run_madgraph(proc_card_path, output_path, ufotar, param_card_path=None, run_
         else:
             ufo_name, ufo_ext = os.path.splitext(ufotar)
         assert ufo_ext == '.tar', 'ufo must be a tar file!'
+        ufo_name = ufo_name.strip('.ufo')
         subprocess.call(['tar', '-xvf', ufotar])
         ufo_path = 'madgraph/models/{}'.format(ufo_name)
         shutil.rmtree(ufo_path, ignore_errors=True)

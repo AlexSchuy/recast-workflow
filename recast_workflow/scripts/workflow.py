@@ -232,7 +232,6 @@ def make_workflow(steps: List[str], names: List[str], environment_settings: List
 
 def get_inputs(workflow):
     """ Find all inputs to a yadage workflow with no encapsulated workflows.
-    TODO: if multistage workflows are added, this function will have to recursively run through workflows
 
     Args:
         dictionary that represents workflow
@@ -240,6 +239,7 @@ def get_inputs(workflow):
     Returns:
         List of names of all parameters that come from the 'init' stage in yadage
     """
+    # TODO: if multistage workflows are added, this function will have to recursively run through workflows
     inputs = []
     for stage in workflow['stages']:
         parameters = stage['scheduler']['parameters']
