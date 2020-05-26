@@ -4,7 +4,8 @@ environment_settings:
 build_tags: 
   madanalysis: madanalysis_version
 inputs:
-  - {name: recast_card, description: 'Specifies which analyses should be used.'}
+  - {name: ma5_recast_card, description: 'Specifies which analyses should be used.'}
+  - {name: ma5_run_card, description: 'Specifies what commands to run in madanalysis5 recast mode.'}
 interfaces:
   input:
     - hepmc
