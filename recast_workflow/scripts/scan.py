@@ -21,7 +21,7 @@ def build_multi(single_wf: dict, multi_params=[]):
             'parameters': params
         },
         'scheduler_type': 'multistep-stage',
-        'scatter': {'method': 'zip', 'parameters:' ['param_card']},
+        'scatter': {'method': 'zip', 'parameters': ['param_card']},
         'workflow' : single_wf
     }]}
     return multi_wf
