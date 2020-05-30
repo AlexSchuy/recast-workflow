@@ -1,6 +1,6 @@
 from ..scripts import workflow
 
-def build_multi(single_wf: dict, multi_params):
+def build_multi(single_wf: dict, multi_params=[]):
     """
     Convert single-step stage workflow to multistep stages
 
