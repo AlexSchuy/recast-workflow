@@ -246,6 +246,16 @@ def get_inputs(workflow):
         inputs += [p['output'] for p in parameters.values() if isinstance(p, dict) and p['step'] == 'init']
     return inputs
 
+def make_name(wf_dict):
+    """ Creates name for workflow by combining names of all steps
+
+    Args:
+        dictionary that represents workflow
+
+    Returns:
+        Underscore-seperated list of names of steps
+    """
+    return '_'.join([i['name'] for i in wf_dict['stages']])
 
 def run_make(args):
     make_workflow_from_yaml(Path(args.spec))

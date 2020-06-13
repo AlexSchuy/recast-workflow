@@ -16,8 +16,8 @@ def build_multi(single_wf: dict, multi_params=[]):
 
     multi_wf = {'stages': [{
         'dependencies': ['init'],
-        'name': 'multi_' + '_'.join([i for i in workflow['name']]),
-        'scheduler':{
+        'name': 'multi_' + workflow.make_name(single_wf),
+        'scheduler': {
             'parameters': params
         },
         'scheduler_type': 'multistep-stage',
